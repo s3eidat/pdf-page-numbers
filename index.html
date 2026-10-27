@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' data: blob:; connect-src 'self' data: blob:; worker-src 'self' blob:; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>PDF Page Numbers — Add Page Numbers, Headers &amp; Footers, Free &amp; Private | S3eidat Tools</title>
+<meta name="description" content="Add page numbers to a PDF in your browser: 'Page 1 of 9' and other formats, six positions, start number, skip the cover, header and footer text. Live preview, nothing uploaded.">
+<meta property="og:title" content="PDF Page Numbers — add page numbers, headers and footers">
+<meta property="og:description" content="Number PDF pages with a live preview: formats, positions, skip the cover. Runs 100% in your browser.">
+<link rel="icon" href="kit/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="kit/kit.css">
+<link rel="stylesheet" href="app.css">
+<script src="kit/kit.js"></script>
+<script src="lib/pdf-lib.min.js"></script>
+<!--s3:seo-->
+<link rel="canonical" href="https://s3eidat.github.io/pdf-page-numbers/">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d0f12">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="S3eidat Tools">
+<meta property="og:url" content="https://s3eidat.github.io/pdf-page-numbers/">
+<meta property="og:image" content="https://s3eidat.github.io/pdf-page-numbers/screenshot.png">
+<meta property="og:image:width" content="1280"><meta property="og:image:height" content="800">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PDF Page Numbers — Add page numbers, headers and footers">
+<meta name="twitter:description" content="Add page numbers, headers and footers. Free, private and runs 100% in your browser: no sign-up, no uploads.">
+<meta name="twitter:image" content="https://s3eidat.github.io/pdf-page-numbers/screenshot.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "PDF Page Numbers", "url": "https://s3eidat.github.io/pdf-page-numbers/", "description": "Add page numbers, headers and footers. Free, private and runs 100% in your browser: no sign-up, no uploads.", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any (web browser)", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "image": "https://s3eidat.github.io/pdf-page-numbers/screenshot.png", "author": {"@type": "Person", "name": "s3eidat", "url": "https://github.com/s3eidat"}}</script>
+<!--/s3:seo-->
+</head>
+<body data-tool="pdf-page-numbers">
+<main class="s3-main">
+  <section class="s3-hero">
+    <h1>PDF Page Numbers</h1>
+    <p>Number your PDF's pages, with an optional header and footer. Pick a format and a corner, skip the cover, and watch the preview. The file never leaves this device.</p>
+  </section>
+
+  <section class="card" id="dropCard">
+    <label class="drop" id="drop">
+      <input type="file" accept=".pdf,application/pdf" hidden>
+      <svg class="i"><use href="#i-upload"/></svg>
+      <b>Drop a PDF here</b>
+      <span>or click to choose one</span>
+    </label>
+  </section>
+
+  <div class="pn-layout" id="work" hidden>
+    <section class="card">
+      <div class="row between pn-file">
+        <div class="row pn-fname"><svg class="i"><use href="#i-file"/></svg><b id="fname"></b></div>
+        <button class="btn ghost small" id="change"><svg class="i"><use href="#i-refresh"/></svg>Another file</button>
+      </div>
+      <span class="faint" id="fmeta"></span>
+
+      <label class="field mt">Number format<input class="input" id="fmt" spellcheck="false" dir="auto"></label>
+      <div class="row pn-chips" id="fmtChips" role="group" aria-label="Format presets"></div>
+
+      <div class="pn-row mt">
+        <div class="field"><span>Position</span>
+          <div class="pn-pos" id="pos" role="group" aria-label="Position">
+            <button data-v="tl" aria-label="Top left"></button><button data-v="tc" aria-label="Top centre"></button><button data-v="tr" aria-label="Top right"></button>
+            <span class="pn-mid" aria-hidden="true"></span>
+            <button data-v="bl" aria-label="Bottom left"></button><button data-v="bc" aria-label="Bottom centre"></button><button data-v="br" aria-label="Bottom right"></button>
+          </div>
+        </div>
+        <div class="pn-nums">
+          <label class="field">Start at<input class="input" id="start" type="number" min="0" step="1"></label>
+          <label class="field">Skip first<input class="input" id="skip" type="number" min="0" step="1" title="Pages at the start (like a cover) that get no number"></label>
+          <label class="field pn-wide"><span class="pn-lbl">Pages <span class="faint" id="rangeMsg"></span></span><input class="input" id="range" placeholder="All, or e.g. 2-10, 12" spellcheck="false" inputmode="numeric"></label>
+        </div>
+      </div>
+
+      <div class="grid-3 mt">
+        <label class="field">Font<select class="select" id="font">
+          <option value="Helvetica">Helvetica</option><option value="HelveticaBold">Helvetica Bold</option>
+          <option value="TimesRoman">Times</option><option value="Courier">Courier</option></select></label>
+        <label class="field">Size<input class="input" id="size" type="number" min="5" max="48" step="0.5"></label>
+        <label class="field">Colour<input type="color" id="color"></label>
+      </div>
+      <label class="field mt"><span class="pn-lbl">Distance from edge <span class="faint" id="marginVal"></span></span><input type="range" id="margin" min="10" max="90" step="1"></label>
+
+      <details class="pn-more mt" id="moreBox">
+        <summary>Header &amp; footer text</summary>
+        <div class="stack mt">
+          <div class="pn-hf"><label class="field grow">Header<input class="input" id="header" dir="auto" placeholder="e.g. {filename}"></label>
+            <div class="seg" id="hAlign" role="group" aria-label="Header alignment"><button data-v="l">Left</button><button data-v="c">Centre</button><button data-v="r">Right</button></div></div>
+          <div class="pn-hf"><label class="field grow">Footer<input class="input" id="footer" dir="auto" placeholder="e.g. Confidential · {date}"></label>
+            <div class="seg" id="fAlign" role="group" aria-label="Footer alignment"><button data-v="l">Left</button><button data-v="c">Centre</button><button data-v="r">Right</button></div></div>
+          <p class="faint pn-tokens">Use <code>{n}</code> page number, <code>{total}</code> total, <code>{date}</code> today, <code>{filename}</code> file name. They appear on the same pages as the numbers.</p>
+        </div>
+      </details>
+
+      <button class="btn primary big pn-go mt" id="save"><svg class="i"><use href="#i-download"/></svg>Add numbers &amp; download</button>
+    </section>
+
+    <section class="card pn-preview">
+      <div class="row between">
+        <h2>Preview</h2>
+        <div class="row">
+          <button class="btn icon small" id="prev" aria-label="Previous page">‹</button>
+          <span class="chip" id="pageNo"></span>
+          <button class="btn icon small" id="next" aria-label="Next page">›</button>
+        </div>
+      </div>
+      <div class="pn-stage mt"><div class="pn-page" id="page"><canvas id="ov" aria-hidden="true"></canvas></div></div>
+      <p class="faint pn-cap" id="cap"></p>
+    </section>
+  </div>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
